@@ -22,3 +22,11 @@ magnet:?xt=urn:btih:7ffbcd8cee06aba2ce6561688cf68ce2addca0a3&dn=BreachCompilatio
 ```
 
 Once you've got this saved, you can either specify it's path with the `./CredCatch.rb -b /path/to/breachcompilation`, or `cp settings.json.example settings.json`, and add in your path to settings.json.
+
+# Screenshots
+---
+## Running
+![](https://raw.githubusercontent.com/pry0cc/CredCatch/master/screenshot.png)
+
+## Results
+![](https://raw.githubusercontent.com/pry0cc/CredCatch/master/results.png)
