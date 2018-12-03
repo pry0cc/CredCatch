@@ -9,8 +9,9 @@ require 'ruby-progressbar'
 
 class WeLeakInfo
 
-	def initialize(breachcompilation_path)
-		@breachcompilation_path = breachcompilation_path
+	def initialize(settings)
+		@breachcompilation_path = settings["breachcompilation_path"]
+        @session_id = settings["session_id"]
 		@data = {}
 		@data["scanned"] = 0
 		@emails = {}
@@ -21,7 +22,22 @@ class WeLeakInfo
 		
 		wait = Selenium::WebDriver::Wait.new(timeout: 30)
 		wait.until { @driver.find_element(name: "query") }
+        if @session_id
+            self.login(@session_id)
+        end
 	end
+
+    def login(session_id)
+        cookies = @driver.manage.all_cookies()
+        cookies.each do |cookie|
+            if cookie[:name] == "PHP_SESSION"
+                cookie[:value] = session_id
+                @driver.manage.delete_cookie("PHP_SESSION")
+                @driver.manage.add_cookie(opts = cookie)
+            end
+        end
+        @driver.navigate.to "https://weleakinfo.com/"
+    end
 
 	def end()
 		@driver.close()
@@ -39,7 +55,11 @@ class WeLeakInfo
 		progressbar = ProgressBar.create(:format => '%a %e %B %p%% %t')
 		@data["total"] = @emails.length
 		@emails.each do |email, data|
-  			res = self.search(email, "email")
+            if @session_id
+                res = self.logged_in_search(email, "email")
+            else
+                res = self.search(email, "email")
+            end
   			@data["scanned"] += 1
   			# puts "Scanned = #{@data["scanned"]} total = #{@data["total"]}"
   			percentage = (@data["scanned"].to_f / @data["total"].to_f) * 100
@@ -117,6 +137,32 @@ class WeLeakInfo
 
 		return results
 	end
+
+    def logged_in_search(query, type)
+        element = @driver.find_element(name: "query")
+        element.send_keys query
+
+        @driver.find_element(:name, "type").find_element(:css,"option[value='#{type}']").click
+        @driver.find_element(:name, "search").click
+
+        src = @driver.page_source
+        results = Nokogiri::HTML(src).css(".result")
+
+        breaches = []
+
+        results.each do |result|
+            breach = {}
+            items = result.css("pre").text.split("\n")
+            items.each do |item|
+                key, value = item.split(": ")
+                breach[key] = value
+            end
+            breaches.push(breach)
+        end
+
+        return breaches
+    end
+
 end
 
 trap "SIGINT" do
@@ -136,6 +182,10 @@ optparse = OptionParser.new do|opts|
   opts.on( '-l', '--breachpath FILE', 'Path of BreachCompliation Location' ) do|file|
     options[:breachpath] = file
   end
+    options[:session_id] = false
+  opts.on( '-s', '--session TOKEN', 'PHP_SESSION Cookie Value' ) do|session_id|
+    options[:session_id] = session_id
+  end
   # This displays the help screen, all programs are
   # assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
@@ -147,6 +197,7 @@ end
 optparse.parse!
 
 filename = ARGV[0]
+
 
 if options[:breachpath]
 	if File.exist?("settings.json")
@@ -165,16 +216,16 @@ else
 	@settings["breachcompilation_path"] = false
 end
 
-
+if options[:session_id]
+    @settings["session_id"] = options[:session_id]
+    puts "[+] Session key specified! Will pull from WeLeakInfo rather than from BreachCompliation"
+else
+    @settings["session_id"] = false
+end
 
 if File.exist?(filename)
 	puts "[*] Initializing CredGet...."
-	if @settings["breachcompilation_path"]
-		thebot = WeLeakInfo.new(@settings["breachcompilation_path"])
-	else
-		thebot = WeLeakInfo.new(false)
-	end
-	
+	thebot = WeLeakInfo.new(@settings)	
 	puts "[+] Loading #{filename}"
 	thebot.load_emails(filename)
 	puts "[*] Beginning scan"
