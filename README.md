@@ -83,8 +83,11 @@ Once you've got this saved, you can either specify it's path with the `./CredCat
 
 # Screenshots
 ---
+## CredE
+![](https://raw.githubusercontent.com/pry0cc/CredCatch/master/screenshots/credE.png)
+
 ## Running
-![](https://raw.githubusercontent.com/pry0cc/CredCatch/master/screenshot.png)
+![](https://raw.githubusercontent.com/pry0cc/CredCatch/master/screenshots/screenshot.png)
 
 ## Results
-![](https://raw.githubusercontent.com/pry0cc/CredCatch/master/results.png)
+![](https://raw.githubusercontent.com/pry0cc/CredCatch/master/screenshots/results.png)
