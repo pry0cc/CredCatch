@@ -19,7 +19,6 @@ CredE is for Email generation, similar to https://github.com/byt3bl33d3r/Sprayin
 
 Easy as that!
 
----
 
 ## CredX
 CredX is for searching breaches and pulling plaintext credientials. It uses selenium-webdriver, so you will need that. There are multiple ways to use CredX. 
@@ -44,7 +43,7 @@ CredX can be used exclusively without using CredE, however CredE is nice if you 
 or 
 
 ```
-./CredX.rb emails.txt"
+./CredX.rb emails.txt
 ``` 
 
 ### Option 2.
@@ -54,6 +53,8 @@ or
 ```
 ./CredX.rb --find -c "Company Name" -d "company.com" -f "{f}{last}@{domain} --breachpath /path/to/breachcompilation"
 ``` 
+
+or
 
 ```
 ./CredX.rb --breachpath /path/to/breachcompilation emails.txt"
