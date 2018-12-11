@@ -65,7 +65,7 @@ or
 ./CredX.rb -s session_token emails.txt
 ```
 
-Or
+or
 
 ```
 /CredX.rb -s session_token --find -c "Company Name" -d "company.com" -f "{first}.{last}@{domain}"
